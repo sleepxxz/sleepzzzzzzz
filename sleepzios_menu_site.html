@@ -1,0 +1,196 @@
+
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>SleepZIOS - Auxílio</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+      background: #000;
+      color: #ddd;
+      height: 100vh;
+      position: relative;
+    }
+    canvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+    }
+    .container {
+      width: 280px;
+      padding: 15px 20px;
+      background: #111;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(255,255,255,0.1);
+      position: absolute;
+      top: 45%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 12px;
+      color: #eee;
+      font-weight: 600;
+      font-size: 18px;
+    }
+    .menu-item {
+      margin: 6px 0;
+      padding: 8px 10px 8px 28px;
+      background: #222;
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: left;
+      position: relative;
+      color: #ccc;
+      font-size: 14.5px;
+      transition: background 0.25s;
+    }
+    .menu-item:hover {
+      background: #333;
+    }
+    .menu-item::before {
+      content: '';
+      border: solid #ccc;
+      border-width: 0 1.5px 1.5px 0;
+      display: inline-block;
+      padding: 3px;
+      transform: rotate(45deg);
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      margin-top: -5px;
+      transition: transform 0.2s ease;
+    }
+    .menu-item.open::before {
+      transform: rotate(135deg);
+    }
+    .sub-options {
+      display: none;
+      padding-left: 22px;
+      margin-top: 4px;
+    }
+    .checkbox-label {
+      display: block;
+      margin: 3px 0;
+      font-size: 13.5px;
+      color: #bbb;
+    }
+    .checkbox-label input {
+      width: 16px;
+      height: 16px;
+      margin-right: 8px;
+      accent-color: #000;
+      vertical-align: middle;
+      cursor: pointer;
+    }
+    .checkbox-label input:checked {
+      background-color: #000;
+    }
+    .checkbox-label input:focus {
+      outline: 2px solid #555;
+    }
+    .command-prompt {
+      margin-top: 15px;
+      padding: 8px 12px;
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 6px;
+      font-size: 11px;
+      color: #aaa;
+      max-height: 80px;
+      overflow-y: auto;
+      box-shadow: inset 0 0 8px rgba(255,255,255,0.08);
+      line-height: 1.3;
+      font-weight: 500;
+      user-select: none;
+    }
+    .msg-block {
+      margin-bottom: 3px;
+    }
+  </style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div class="container">
+  <h2>Auxílio Premium</h2>
+  <div class="menu-item" onclick="toggleOptions(this,'trick-options')">Sistema Avançado</div>
+  <div class="sub-options" id="trick-options">
+    <label class="checkbox-label"><input type="checkbox" onchange="updatePrompt(this,'120 FPS')"> 120 FPS</label>
+    <label class="checkbox-label"><input type="checkbox" onchange="updatePrompt(this,'No Recoil')"> No Recoil</label>
+  </div>
+  <div class="menu-item" onclick="toggleOptions(this,'legit-options')">Ajustes de Mira</div>
+  <div class="sub-options" id="legit-options">
+    <label class="checkbox-label"><input type="checkbox" onchange="updatePrompt(this,'Aimbot 90%')"> Aimbot 90%</label>
+    <label class="checkbox-label"><input type="checkbox" onchange="updatePrompt(this,'Head Trick')"> Head Trick</label>
+    <label class="checkbox-label"><input type="checkbox" onchange="updatePrompt(this,'Neural Aim')"> Neural Aim</label>
+  </div>
+  <div class="command-prompt" id="commandPrompt"></div>
+</div>
+
+<script>
+const canvas = document.getElementById('bg'), ctx = canvas.getContext('2d');
+canvas.width = innerWidth; canvas.height = innerHeight;
+let particles = [];
+for (let i = 0; i < 60; i++) {
+  particles.push({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    vx: (Math.random() - 0.5) * 1,
+    vy: (Math.random() - 0.5) * 1
+  });
+}
+function animate() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  for (let i = 0; i < particles.length; i++) {
+    let p = particles[i];
+    p.x += p.vx; p.y += p.vy;
+    if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+    if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 2, 0, 2 * Math.PI);
+    ctx.fillStyle = '#bbb';
+    ctx.fill();
+    for (let j = i + 1; j < particles.length; j++) {
+      let q = particles[j], dx = p.x - q.x, dy = p.y - q.y;
+      if (Math.sqrt(dx * dx + dy * dy) < 90) {
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        ctx.lineTo(q.x, q.y);
+        ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+    }
+  }
+  requestAnimationFrame(animate);
+}
+animate();
+
+function toggleOptions(el, id) {
+  const opt = document.getElementById(id);
+  const isOpen = opt.style.display === 'block';
+  opt.style.display = isOpen ? 'none' : 'block';
+  el.classList.toggle('open', !isOpen);
+}
+
+function updatePrompt(cb, mod) {
+  const prompt = document.getElementById('commandPrompt');
+  const status = cb.checked ? 'Ativado' : 'Desativado';
+
+  const block = document.createElement('div');
+  block.className = 'msg-block';
+  block.textContent = mod + ': ' + status;
+
+  prompt.appendChild(block);
+  prompt.scrollTop = prompt.scrollHeight;
+}
+</script>
+</body>
+</html>
