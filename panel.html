@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>S SLEEP - PAINEL</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+    body{background:#000;color:#fff;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:18px}
+    .container{width:100%;max-width:760px;background:rgba(10,10,10,.9);border-radius:16px;border:2px solid #ff0000;box-shadow:0 0 40px rgba(255,0,0,.12);overflow:hidden}
+    .header{padding:14px;text-align:center;background:rgba(30,0,0,.9);border-bottom:2px solid #ff0000}
+    .header h1{color:#ff0000;font-size:18px}
+    .panel{display:flex;min-height:360px}
+    .tabs{width:88px;background:rgba(30,0,0,.9);padding:12px;display:flex;flex-direction:column;gap:8px;border-right:2px solid #ff0000}
+    .tab{padding:10px;border-radius:10px;text-align:center;cursor:pointer;display:flex;flex-direction:column;align-items:center;font-size:12px;background:rgba(255,0,0,.06)}
+    .tab.active{background:rgba(255,0,0,.28);box-shadow:0 0 10px rgba(255,0,0,.18);transform:scale(1.03)}
+    .content{flex:1;padding:14px}
+    .options-row{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+    .option{flex:1;min-width:140px;padding:10px;border-radius:10px;background:rgba(60,0,0,.6);border:1px solid rgba(255,0,0,.12);display:flex;align-items:center;gap:10px}
+    .checkbox{width:18px;height:18px;border:2px solid #ff0000;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+    .checkbox.checked{background:rgba(255,0,0,.5);color:#fff;font-weight:bold}
+    .slider-container{margin:8px 0}
+    .slider-value{color:#ff4444;font-weight:700;margin-bottom:6px}
+    .slider{width:100%}
+    .activate-btn{width:100%;padding:10px;border-radius:10px;border:none;background:linear-gradient(135deg,#ff0000,#ff5555);color:#fff;font-weight:800;cursor:pointer}
+    .info-item{margin-bottom:8px;padding:8px;background:rgba(60,0,0,.6);border-radius:8px;border:1px solid rgba(255,0,0,.12)}
+    @media (max-width:520px){
+      .panel{flex-direction:column}
+      .tabs{width:100%;flex-direction:row;overflow:auto}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header"><h1>sleepffz — Painel (Demo)</h1></div>
+    <div class="panel">
+      <div class="tabs">
+        <div class="tab active" data-tab="aimbot"><i class="fas fa-crosshairs"></i><span>Opções</span></div>
+        <div class="tab" data-tab="info"><i class="fas fa-info-circle"></i><span>Info</span></div>
+      </div>
+      <div class="content">
+        <div class="tab-content active" id="aimbot">
+          <div class="options-row">
+            <div class="option"><div class="checkbox" id="legit"></div><div style="font-weight:700">Modo Visual</div></div>
+            <div class="option"><div class="checkbox" id="toggle"></div><div style="font-weight:700">Ativar UI</div></div>
+          </div>
+
+          <div class="options-row">
+            <div class="option"><div class="checkbox" id="opt1"></div><div>Melhorar precisão (visual)</div></div>
+            <div class="option"><div class="checkbox" id="opt2"></div><div>Ignorar derrubados (visual)</div></div>
+          </div>
+
+          <div class="slider-container">
+            <div class="slider-value" id="fovValue">fov: [ 90 ]</div>
+            <input id="fovSlider" class="slider" type="range" min="0" max="360" value="90">
+          </div>
+
+          <select id="aimPosition" style="width:100%;padding:8px;border-radius:8px;border:2px solid #ff0000;background:rgba(20,0,0,.7);color:#fff;margin-top:8px">
+            <option>Cabeça</option>
+            <option selected>Pescoço</option>
+            <option>Corpo</option>
+          </select>
+
+          <button id="activateBtn" class="activate-btn" style="margin-top:12px">ATIVAR (Demo)</button>
+        </div>
+
+        <div class="tab-content" id="info" style="display:none">
+          <div class="info-item"><strong>Criado por:</strong> devX (demo)</div>
+          <div class="info-item"><strong>Versão UI:</strong> 1.0</div>
+          <div class="info-item"><strong>Modelo do telefone:</strong> <span id="phoneModel">Detectando...</span></div>
+          <div class="info-item">Esta é uma versão somente visual — nenhuma função externa é executada.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Login gate: se não logado, volta pro login
+    if (localStorage.getItem('loggedIn') !== 'true') {
+      window.location.href = 'login.html';
+    }
+
+    // Tabs
+    const tabs = document.querySelectorAll('.tab');
+    const tabContents = { aimbot: document.getElementById('aimbot'), info: document.getElementById('info') };
+    tabs.forEach(tab => tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const t = tab.dataset.tab;
+      for (const k in tabContents) tabContents[k].style.display = (k === t) ? 'block' : 'none';
+    }));
+
+    // Checkboxes
+    document.querySelectorAll('.checkbox').forEach(cb => cb.addEventListener('click', () => cb.classList.toggle('checked')));
+
+    // FOV slider
+    const fovSlider = document.getElementById('fovSlider');
+    const fovValue = document.getElementById('fovValue');
+    fovSlider.addEventListener('input', () => fovValue.textContent = `fov: [ ${fovSlider.value} ]`);
+
+    // Detecção simples de dispositivo (apenas display)
+    function detectPhoneModel() {
+      const ua = navigator.userAgent;
+      if (/iPhone/.test(ua)) return 'iPhone';
+      if (/iPad/.test(ua)) return 'iPad';
+      if (/Android/.test(ua)) return 'Android';
+      return 'Computador';
+    }
+    document.getElementById('phoneModel').textContent = detectPhoneModel();
+
+    // Botão ATIVAR só mostra feedback visual (sem ações externas)
+    document.getElementById('activateBtn').addEventListener('click', () => {
+      const btn = document.getElementById('activateBtn');
+      btn.textContent = 'ATIVADO (Demo)';
+      setTimeout(()=> btn.textContent = 'ATIVAR (Demo)', 1500);
+    });
+
+    // Pequena rotina para salvar aba ativa
+    window.addEventListener('beforeunload', () => {
+      const active = document.querySelector('.tab.active')?.dataset?.tab || 'aimbot';
+      localStorage.setItem('activeTab', active);
+    });
+    window.addEventListener('load', () => {
+      const saved = localStorage.getItem('activeTab');
+      if (saved) {
+        document.querySelector(`.tab[data-tab="${saved}"]`)?.click();
+      }
+    });
+  </script>
+</body>
+</html>
