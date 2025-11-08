@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SLEEP">
+    <title>S SLEEP - AIMLOCK</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+        body{background:#000;color:#fff;min-height:100vh;display:flex;justify-content:center;align-items:center;overflow:hidden;position:relative;padding:10px}
+        .rain{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:-1}
+        .drop{position:absolute;width:2px;height:20px;background:linear-gradient(transparent,rgba(0,0,0,0.8));border-radius:0 0 5px 5px;animation:rain 1s linear infinite}
+        @keyframes rain{0%{transform:translateY(-100px)}100%{transform:translateY(calc(100vh + 100px))}}
+
+        /* tela de login */
+        .login-screen{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:100;transition:opacity .5s}
+        .login-container{background:rgba(30,30,30,.9);padding:20px;border-radius:15px;box-shadow:0 0 20px rgba(255,0,0,.6);width:90%;max-width:380px;text-align:center}
+        .login-title{font-size:18px;margin-bottom:15px;color:#ff0000;text-shadow:0 0 10px rgba(255,0,0,.8);font-weight:bold}
+        .key-input{width:100%;padding:10px;margin:12px 0;border:2px solid #ff0000;border-radius:8px;background:rgba(20,0,0,.8);color:#fff;font-size:14px;text-align:center;font-weight:bold}
+        .login-btn{background:#ff0000;color:#fff;border:none;padding:12px 24px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:bold;margin-top:10px;transition:.3s;box-shadow:0 4px 8px rgba(0,0,0,.3)}
+        .login-btn:hover{background:#ff3333;box-shadow:0 0 15px rgba(255,0,0,.8);transform:translateY(-2px)}
+        .social-icons{display:flex;justify-content:center;gap:20px;margin-top:20px}
+        .social-icons a{color:#ff0000;font-size:28px;transition:.3s}
+        .social-icons a:hover{color:#ff3333;transform:scale(1.2)}
+
+        /* painel principal */
+        .container{width:320px;height:320px;display:none;background:rgba(40,0,0,.95);border-radius:20px;overflow:hidden;box-shadow:0 0 30px rgba(255,0,0,.7);transition:.5s ease;border:2px solid #ff0000}
+        .header{text-align:center;padding:12px;background:rgba(50,0,0,.9);border-bottom:2px solid #ff0000}
+        .header h1{color:#ff0000;text-shadow:0 0 10px rgba(255,0,0,.8);font-size:18px;font-weight:bold;letter-spacing:1px}
+        .panel{display:flex;height:calc(100% - 48px)}
+        .tabs{width:80px;background:rgba(50,0,0,.9);padding:10px 0;display:flex;flex-direction:column;border-right:2px solid #ff0000}
+        .tab{padding:10px 5px;cursor:pointer;text-align:center;font-size:11px;margin:5px;border-radius:8px;background:rgba(255,0,0,.15);font-weight:bold;display:flex;flex-direction:column;align-items:center;gap:5px}
+        .tab.active{background:rgba(255,0,0,.4);border:1px solid #ff0000;box-shadow:0 0 10px rgba(255,0,0,.7);transform:scale(1.05)}
+        .content{flex:1;padding:10px;overflow-y:auto}
+        .tab-content{display:none}
+        .tab-content.active{display:block}
+        .options-row{display:flex;justify-content:space-between;margin-bottom:8px;gap:8px}
+        .option{display:flex;align-items:center;padding:12px 10px;background:rgba(60,0,0,.6);border-radius:12px;flex:1;font-size:13px;border:1px solid rgba(255,0,0,.15)}
+        .checkbox{width:18px;height:18px;border:2px solid #ff0000;border-radius:6px;margin-right:12px;display:flex;justify-content:center;align-items:center;cursor:pointer;background:rgba(255,0,0,.05)}
+        .checkbox.checked{background:rgba(255,0,0,.4)}
+        .checkbox.checked::after{content:"✓";color:#fff;font-weight:bold;font-size:12px}
+        .slider-container{margin:8px 0;padding:6px;background:rgba(60,0,0,.6);border-radius:8px;border:1px solid rgba(255,0,0,.3)}
+        .slider-value{text-align:center;margin-bottom:5px;font-weight:bold;color:#ff4444;font-size:11px;text-shadow:0 0 5px rgba(255,0,0,.5)}
+        .slider{width:100%;height:5px;appearance:none;background:rgba(255,0,0,.2);border-radius:3px}
+        .slider::-webkit-slider-thumb{appearance:none;width:14px;height:14px;border-radius:50%;background:#ff0000;cursor:pointer;box-shadow:0 0 8px rgba(255,0,0,.9);border:2px solid #fff}
+        .select{width:100%;padding:6px;background:rgba(60,0,0,.8);border:2px solid #ff0000;border-radius:6px;color:#fff;margin:6px 0;cursor:pointer;font-size:11px;font-weight:bold}
+        .activate-btn{width:100%;padding:8px;background:linear-gradient(135deg,#ff0000,#ff3333);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;margin:6px 0;text-align:center;box-shadow:0 4px 10px rgba(0,0,0,.3);letter-spacing:.5px}
+        .info-item{margin-bottom:8px;padding:6px;background:rgba(60,0,0,.6);border-radius:6px;font-size:11px;border:1px solid rgba(255,0,0,.3)}
+        .info-title{color:#ff0000;font-weight:bold;margin-bottom:4px;font-size:11px;text-shadow:0 0 5px rgba(255,0,0,.5)}
+        .tip{margin-top:10px;padding:8px;background:rgba(255,0,0,.15);border-left:4px solid #ff0000;border-radius:6px;font-size:10px;font-weight:bold}
+
+        @media (max-width:420px){
+            .panel{flex-direction:column}
+            .tabs{width:100%;display:flex;flex-direction:row;gap:8px;overflow:auto}
+            .options-row{flex-direction:column}
+        }
+    </style>
+</head>
+<body>
+    <div class="rain" id="rain"></div>
+
+    <!-- LOGIN -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-container">
+            <h1 class="login-title">Login - SLEEP AIMBOT</h1>
+            <input type="text" class="key-input" id="keyInput" placeholder="Digite sua chave de acesso">
+            <button class="login-btn" id="loginBtn">Entrar</button>
+            <div class="social-icons">
+                <a href="https://www.tiktok.com/@sleepffz" target="_blank"><i class="fab fa-tiktok"></i></a>
+                <a href="https://instagram.com/sleepwj_" target="_blank"><i class="fab fa-instagram"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAINEL -->
+    <div class="container" id="mainContainer">
+        <div class="header"><h1>sleepffz aimbot</h1></div>
+        <div class="panel">
+            <div class="tabs">
+                <div class="tab active" data-tab="aimbot"><i class="fas fa-crosshairs"></i><span>aimbot</span></div>
+                <div class="tab" data-tab="info"><i class="fas fa-info-circle"></i><span>Info</span></div>
+            </div>
+
+            <div class="content">
+                <div class="tab-content active" id="aimbot">
+                    <div class="options-row">
+                        <div class="option">
+                            <div class="checkbox" id="facilitar acertos na cabeça"></div>
+                            <div><div style="font-weight:bold;font-size:13px">facilitar acertos na cabeça</div></div>
+                        </div>
+                    </div>
+
+                    <div class="options-row">
+                        <div class="option"><div class="checkbox" id="aimbotToggle"></div><span>fluidez de mira</span></div>
+                    </div>
+
+                    <div class="options-row">
+                        <div class="option"><div class="checkbox" id="ignoreKnocked"></div><span>120 FPS</span></div>
+                        <div class="option"><div class="checkbox" id="visibleOnly"></div><span>Ignorar derrubados</span></div>
+                    </div>
+
+                    <div class="slider-container">
+                        <div class="slider-value" id="fovValue">fov: [90.7]</div>
+                        <input type="range" min="0" max="360" value="90.7" class="slider" id="fovSlider">
+                    </div>
+
+                    <select class="select" id="aimPosition">
+                        <option>Cabeça</option>
+                        <option selected>Pescoço</option>
+                        <option>Corpo</option>
+                    </select>
+
+                    <button class="activate-btn" id="activateBtn">INJETAR</button>
+                </div>
+
+                <div class="tab-content" id="info">
+                    <div class="info-item"><div class="info-title">Criado por:</div><div>devX</div></div>
+                    <div class="info-item"><div class="info-title">Créditos a:</div><div>sleepffz</div></div>
+                    <div class="info-item"><div class="info-title">Modelo do telefone:</div><div class="phone-model" id="phoneModel">Android</div></div>
+                    <div class="tip">Dica: Ative no lobby e entre no treinamento para melhor resultado.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const CORRECT_KEY = "SLEEP-S2HTZK3F2T8CRIIV37QX6";
+        const loginScreen = document.getElementById('loginScreen');
+        const mainContainer = document.getElementById('mainContainer');
+        const keyInput = document.getElementById('keyInput');
+        const loginBtn = document.getElementById('loginBtn');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const checkboxes = document.querySelectorAll('.checkbox');
+        const fovSlider = document.getElementById('fovSlider');
+        const fovValue = document.getElementById('fovValue');
+        const activateBtn = document.getElementById('activateBtn');
+        const phoneModel = document.getElementById('phoneModel');
+
+        // Login
+        loginBtn.addEventListener('click', () => {
+            if (keyInput.value === CORRECT_KEY) {
+                loginScreen.style.opacity = '0';
+                setTimeout(() => {
+                    loginScreen.style.display = 'none';
+                    mainContainer.style.display = 'block';
+                    localStorage.setItem('loggedIn', 'true');
+                }, 500);
+            } else {
+                alert('❌ Chave incorreta! Tente novamente.');
+                keyInput.value = '';
+            }
+        });
+
+        // Enter pra logar
+        keyInput.addEventListener('keypress', e => {
+            if (e.key === 'Enter') loginBtn.click();
+        });
+
+        // Tabs
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(tc => tc.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab).classList.add('active');
+            });
+        });
+
+        // Checkbox toggle
+        checkboxes.forEach(cb => cb.addEventListener('click', () => cb.classList.toggle('checked')));
+
+        // FOV
+        fovSlider.addEventListener('input', () => {
+            fovValue.textContent = `fov: [${fovSlider.value}]`;
+        });
+
+        // Injetar (simula abertura do FF)
+        activateBtn.addEventListener('click', () => {
+            window.location.href = 'freefiremax://';
+            setTimeout(() => { window.location.href = 'freefire://'; }, 300);
+        });
+
+        // Detectar modelo
+        function detectPhoneModel() {
+            const ua = navigator.userAgent;
+            if (/Android/.test(ua)) return 'Android';
+            if (/iPhone/.test(ua)) return 'iPhone';
+            return 'Computador';
+        }
+        phoneModel.textContent = detectPhoneModel();
+
+        // Restaurar login
+        window.addEventListener('load', () => {
+            if (localStorage.getItem('loggedIn') === 'true') {
+                loginScreen.style.display = 'none';
+                mainContainer.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
